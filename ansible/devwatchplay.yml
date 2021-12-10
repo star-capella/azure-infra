@@ -1,0 +1,53 @@
+---
+  - name: VM
+    hosts: webserver
+    become: yes
+    become_user: root
+
+    tasks:
+      - name: enable EPEL
+        yum:
+          name:
+            - epel-release
+
+      - name: update OS
+        yum:
+          name: '*'
+          state: latest
+
+      - name: reboot from update
+        reboot:
+          reboot_timeout: 90
+
+      - name: install needed packages
+        yum:
+          name:
+            - java-11-openjdk
+            - nginx
+            - postgresql-server
+            - yum-cron
+
+      - name: determine if postgresql has been initialized
+        stat:
+          path: "/var/lib/pgsql/data/pg_hba.conf"
+        register: postgres_data
+
+      - name: initialize postgresql if necessary
+        shell: "postgresql-setup initdb"
+        when: not postgres_data.stat.exists
+
+      - name: enable yum-cron updates
+        lineinfile:
+          path: /etc/yum/yum-cron.conf
+          regexp: 'apply_updates = no'
+          line: apply_updates = yes
+
+      - name: enable services
+        service:
+          name: "{{ item }}"
+          enabled: yes
+          state: started
+        with_items:
+          - nginx
+          - postgresql
+          - yum-cron
