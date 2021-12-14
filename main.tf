@@ -113,4 +113,18 @@ resource "azurerm_linux_virtual_machine" "devwatch" {
     sku = "7.5"
     version = "latest"
   }
+
+  provisioner "remote-exec" {
+    inline = ["sudo dnf -y install python"]
+
+    connection {
+      host = azurerm_public_ip.devwatch.ip_address
+      type        = "ssh"
+      user        = "devwatch"
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.devwatch.ip_address}' ansible/devwatchplay.yml"
+  }
 }
