@@ -1,6 +1,6 @@
 ---
   - name: VM
-    hosts: webserver
+    hosts: all
     become: yes
     become_user: root
 
@@ -25,7 +25,7 @@
             - java-11-openjdk
             - nginx
             - postgresql-server
-            - yum-cron
+            - dnf-automatic
 
       - name: determine if postgresql has been initialized
         stat:
@@ -38,7 +38,7 @@
 
       - name: enable yum-cron updates
         lineinfile:
-          path: /etc/yum/yum-cron.conf
+          path: /etc/dnf/automatic.conf
           regexp: 'apply_updates = no'
           line: apply_updates = yes
 
@@ -50,4 +50,4 @@
         with_items:
           - nginx
           - postgresql
-          - yum-cron
+          - dnf-automatic.timer

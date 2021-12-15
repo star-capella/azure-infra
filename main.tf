@@ -37,7 +37,12 @@ resource "azurerm_public_ip" "devwatch" {
   name = "publicIP"
   location = "canadacentral"
   resource_group_name = azurerm_resource_group.devwatch.name
-  allocation_method = "Dynamic"
+  allocation_method = "Static"
+}
+
+data "azurerm_public_ip" "the_public_ip" {
+  name = azurerm_public_ip.devwatch.name
+  resource_group_name = azurerm_public_ip.devwatch.resource_group_name
 }
 
 resource "azurerm_network_security_group" "devwatch" {
@@ -68,22 +73,9 @@ resource "azurerm_network_interface" "devwatch" {
     subnet_id = azurerm_subnet.devwatch.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id = azurerm_public_ip.devwatch.id
+
   }
 }
-
-resource "azurerm_network_interface_security_group_association" "devwatch" {
-  network_interface_id = azurerm_network_interface.devwatch.id
-  network_security_group_id = azurerm_network_security_group.devwatch.id
-}
-
-# resource "tls_private_key" "sshkey" {
-#   algorithm = "RSA"
-#   rsa_bits = 4096
-# }
-#output "tls_private_key" {
-#  value = tls_private_key.sshkey.private_key_pem
-#  sensitive = true
-#}
 
 output "ip_address" {
   value = azurerm_public_ip.devwatch.ip_address
@@ -107,24 +99,31 @@ resource "azurerm_linux_virtual_machine" "devwatch" {
     storage_account_type = "StandardSSD_LRS"
   }
 
+  plan {
+    name = "8_5"
+    product = "almalinux"
+    publisher = "almalinux"
+  }
+
   source_image_reference {
-    publisher = "OpenLogic"
-    offer = "CentOS"
-    sku = "7.5"
+    publisher = "almalinux"
+    offer = "almalinux"
+    sku = "8_5"
     version = "latest"
   }
 
   provisioner "remote-exec" {
-    inline = ["sudo dnf -y install python"]
+    inline = ["sudo dnf -y install python3-libs"]
 
     connection {
-      host = azurerm_public_ip.devwatch.ip_address
+      host = "${azurerm_public_ip.devwatch.ip_address}"
       type        = "ssh"
+      private_key = file("~/.ssh/id_rsa")
       user        = "devwatch"
     }
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.devwatch.ip_address}' ansible/devwatchplay.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.devwatch.ip_address},' ansible/devwatchplay.yml"
   }
 }
