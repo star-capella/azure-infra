@@ -14,41 +14,41 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "devwatch" {
+resource "azurerm_resource_group" "workportal" {
   name     = var.resource_group_name
   location = "canadacentral"
 }
 
-resource "azurerm_virtual_network" "devwatch" {
-    name                = "devwatch-net"
+resource "azurerm_virtual_network" "workportal" {
+    name                = "workportal-net"
     address_space       = ["10.0.0.0/16"]
     location            = "canadacentral"
-    resource_group_name = azurerm_resource_group.devwatch.name
+    resource_group_name = azurerm_resource_group.workportal.name
 }
 
-resource "azurerm_subnet" "devwatch" {
-  name = "devwatch-subnet"
-  resource_group_name = azurerm_resource_group.devwatch.name
-  virtual_network_name = azurerm_virtual_network.devwatch.name
+resource "azurerm_subnet" "workportal" {
+  name = "workportal-subnet"
+  resource_group_name = azurerm_resource_group.workportal.name
+  virtual_network_name = azurerm_virtual_network.workportal.name
   address_prefixes = ["10.0.1.0/24"]
 }
 
-resource "azurerm_public_ip" "devwatch" {
+resource "azurerm_public_ip" "workportal" {
   name = "publicIP"
   location = "canadacentral"
-  resource_group_name = azurerm_resource_group.devwatch.name
+  resource_group_name = azurerm_resource_group.workportal.name
   allocation_method = "Static"
 }
 
 data "azurerm_public_ip" "the_public_ip" {
-  name = azurerm_public_ip.devwatch.name
-  resource_group_name = azurerm_public_ip.devwatch.resource_group_name
+  name = azurerm_public_ip.workportal.name
+  resource_group_name = azurerm_public_ip.workportal.resource_group_name
 }
 
-resource "azurerm_network_security_group" "devwatch" {
+resource "azurerm_network_security_group" "workportal" {
   name = "networkSecurityGroup"
   location = "canadacentral"
-  resource_group_name = azurerm_resource_group.devwatch.name
+  resource_group_name = azurerm_resource_group.workportal.name
 
   security_rule {
     name = "SSH"
@@ -63,34 +63,34 @@ resource "azurerm_network_security_group" "devwatch" {
   }
 }
 
-resource "azurerm_network_interface" "devwatch" {
-  name = "devwatch-nic"
-  location = azurerm_resource_group.devwatch.location
-  resource_group_name = azurerm_resource_group.devwatch.name
+resource "azurerm_network_interface" "workportal" {
+  name = "workportal-nic"
+  location = azurerm_resource_group.workportal.location
+  resource_group_name = azurerm_resource_group.workportal.name
 
   ip_configuration {
-    name = "devwatch-subnet"
-    subnet_id = azurerm_subnet.devwatch.id
+    name = "workportal-subnet"
+    subnet_id = azurerm_subnet.workportal.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.devwatch.id
+    public_ip_address_id = azurerm_public_ip.workportal.id
 
   }
 }
 
 output "ip_address" {
-  value = azurerm_public_ip.devwatch.ip_address
+  value = azurerm_public_ip.workportal.ip_address
 }
 
-resource "azurerm_linux_virtual_machine" "devwatch" {
-  name = "devwatch-vm"
-  resource_group_name = azurerm_resource_group.devwatch.name
-  location = azurerm_resource_group.devwatch.location
+resource "azurerm_linux_virtual_machine" "workportal" {
+  name = "workportal-vm"
+  resource_group_name = azurerm_resource_group.workportal.name
+  location = azurerm_resource_group.workportal.location
   size = "Standard_B1s"
-  admin_username = "devwatch"
-  network_interface_ids = [ azurerm_network_interface.devwatch.id ]
+  admin_username = "tcurtis"
+  network_interface_ids = [ azurerm_network_interface.workportal.id ]
 
   admin_ssh_key {
-    username = "devwatch"
+    username = "tcurtis"
     public_key = file("~/.ssh/id_rsa.pub")
   }
 
@@ -116,14 +116,14 @@ resource "azurerm_linux_virtual_machine" "devwatch" {
     inline = ["sudo dnf -y install python3-libs"]
 
     connection {
-      host = "${azurerm_public_ip.devwatch.ip_address}"
+      host = "${azurerm_public_ip.workportal.ip_address}"
       type        = "ssh"
       private_key = file("~/.ssh/id_rsa")
-      user        = "devwatch"
+      user        = "tcurtis"
     }
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.devwatch.ip_address},' ansible/devwatchplay.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/workportalplay.yml"
   }
 }

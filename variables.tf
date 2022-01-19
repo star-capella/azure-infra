@@ -1,3 +1,3 @@
 variable "resource_group_name" {
-  default = "devwatch-rg"
+  default = "workportal-rg"
 }

@@ -22,19 +22,11 @@
       - name: install needed packages
         yum:
           name:
-            - java-11-openjdk
+            - java-11-openjdk-headless
             - nginx
-            - postgresql-server
+            - mariadb-server
+            - mariadb-java-client
             - dnf-automatic
-
-      - name: determine if postgresql has been initialized
-        stat:
-          path: "/var/lib/pgsql/data/pg_hba.conf"
-        register: postgres_data
-
-      - name: initialize postgresql if necessary
-        shell: "postgresql-setup initdb"
-        when: not postgres_data.stat.exists
 
       - name: enable yum-cron updates
         lineinfile:
@@ -49,5 +41,5 @@
           state: started
         with_items:
           - nginx
-          - postgresql
+          - mariadb
           - dnf-automatic.timer
