@@ -81,16 +81,23 @@ output "ip_address" {
   value = azurerm_public_ip.workportal.ip_address
 }
 
+# CLI: az vm image terms accept --urn "almalinux":"almalinux":"8_5":"latest"
+resource "azurerm_marketplace_agreement" "workportal" {
+  publisher = "almalinux"
+  offer = "almalinux"
+  plan = "8_5"
+}
+
 resource "azurerm_linux_virtual_machine" "workportal" {
   name = "workportal-vm"
   resource_group_name = azurerm_resource_group.workportal.name
   location = azurerm_resource_group.workportal.location
   size = "Standard_B1s"
-  admin_username = "tcurtis"
+  admin_username = "trevorscurtis"
   network_interface_ids = [ azurerm_network_interface.workportal.id ]
 
   admin_ssh_key {
-    username = "tcurtis"
+    username = "trevorscurtis"
     public_key = file("~/.ssh/id_rsa.pub")
   }
 
@@ -119,7 +126,7 @@ resource "azurerm_linux_virtual_machine" "workportal" {
       host = "${azurerm_public_ip.workportal.ip_address}"
       type        = "ssh"
       private_key = file("~/.ssh/id_rsa")
-      user        = "tcurtis"
+      user        = "trevorscurtis"
     }
   }
 
