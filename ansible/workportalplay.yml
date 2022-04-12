@@ -43,3 +43,62 @@
           - nginx
           - mariadb
           - dnf-automatic.timer
+
+      - name: Create certifcate directories
+        become: true
+        file:
+          path: /etc/pki/nginx/private
+          state: directory
+          mode: '755'
+      
+      - name: Install Python cryptography libs for certificate creation
+        become: true
+        yum:
+          name: python3-cryptography
+          state: present
+      
+      - name: Generate private key
+        become: true
+        openssl_privatekey:
+          path: /etc/pki/nginx/private/server.key
+          size: 2048
+      
+      - name: Generate certificate signing request
+        become: true
+        openssl_csr:
+          path: /etc/ssl/certs/server.crt
+          privatekey_path: /etc/pki/nginx/private/server.key
+      
+      - name: Generate self-signed certificate
+        become: true
+        openssl_certificate:
+          path: /etc/pki/nginx/server.crt
+          csr_path: /etc/ssl/certs/server.crt
+          privatekey_path: /etc/pki/nginx/private/server.key
+          provider: selfsigned
+
+      - name: copy Nginx https config
+        become: true
+        copy:
+          src: https.conf
+          dest: /etc/nginx/conf.d
+      
+      - name: Start/Restart Nginx
+        become: true
+        systemd:
+          name: nginx
+          state: reloaded
+      
+      - name: Ensure Firewalld is started
+        become: true
+        systemd:
+          name: firewalld
+          state: started
+      
+      - name: Open firewall port
+        become: true
+        firewalld:
+          port: 443/tcp
+          permanent: true
+          state: enabled
+          immediate: yes
