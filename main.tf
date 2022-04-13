@@ -81,13 +81,6 @@ output "ip_address" {
   value = azurerm_public_ip.workportal.ip_address
 }
 
-# CLI: az vm image terms accept --urn "almalinux":"almalinux":"8_5":"latest"
-resource "azurerm_marketplace_agreement" "workportal" {
-  publisher = "almalinux"
-  offer = "almalinux"
-  plan = "8_5"
-}
-
 resource "azurerm_linux_virtual_machine" "workportal" {
   name = "workportal-vm"
   resource_group_name = azurerm_resource_group.workportal.name
@@ -106,31 +99,25 @@ resource "azurerm_linux_virtual_machine" "workportal" {
     storage_account_type = "StandardSSD_LRS"
   }
 
-  plan {
-    name = "8_5"
-    product = "almalinux"
-    publisher = "almalinux"
-  }
-
   source_image_reference {
-    publisher = "almalinux"
-    offer = "almalinux"
-    sku = "8_5"
+    publisher = "canonical"
+    offer = "0001-com-ubuntu-server-focal"
+    sku = "20_04-lts-gen2"
     version = "latest"
   }
 
-  provisioner "remote-exec" {
-    inline = ["sudo dnf -y install python3-libs"]
+  # provisioner "remote-exec" {
+  #   inline = ["sudo dnf -y install python3-libs"]
 
-    connection {
-      host = "${azurerm_public_ip.workportal.ip_address}"
-      type        = "ssh"
-      private_key = file("~/.ssh/id_rsa")
-      user        = "trevorscurtis"
-    }
-  }
+  #   connection {
+  #     host = "${azurerm_public_ip.workportal.ip_address}"
+  #     type        = "ssh"
+  #     private_key = file("~/.ssh/id_rsa")
+  #     user        = "trevorscurtis"
+  #   }
+  # }
 
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/workportalplay.yml"
-  }
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/workportalplay.yml"
+  # }
 }
