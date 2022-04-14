@@ -106,18 +106,18 @@ resource "azurerm_linux_virtual_machine" "workportal" {
     version = "latest"
   }
 
-  # provisioner "remote-exec" {
-  #   inline = ["sudo dnf -y install python3-libs"]
+  provisioner "remote-exec" {
+    inline = ["sudo apt-get -y install python3"]
 
-  #   connection {
-  #     host = "${azurerm_public_ip.workportal.ip_address}"
-  #     type        = "ssh"
-  #     private_key = file("~/.ssh/id_rsa")
-  #     user        = "trevorscurtis"
-  #   }
-  # }
+    connection {
+      host = "${azurerm_public_ip.workportal.ip_address}"
+      type        = "ssh"
+      private_key = file("~/.ssh/id_rsa")
+      user        = "trevorscurtis"
+    }
+  }
 
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/workportalplay.yml"
-  # }
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/ubuntu-playbook.yml"
+  }
 }
