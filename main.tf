@@ -45,6 +45,13 @@ data "azurerm_public_ip" "the_public_ip" {
   resource_group_name = azurerm_public_ip.workportal.resource_group_name
 }
 
+# CLI: az vm image terms accept --urn "almalinux":"almalinux":"8_5":"latest"
+resource "azurerm_marketplace_agreement" "workportal" {
+  publisher = "almalinux"
+  offer = "almalinux"
+  plan = "8_5"
+}
+
 resource "azurerm_network_security_group" "workportal" {
   name = "networkSecurityGroup"
   location = "canadacentral"
@@ -100,14 +107,20 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   }
 
   source_image_reference {
-    publisher = "canonical"
-    offer = "0001-com-ubuntu-server-focal"
-    sku = "20_04-lts-gen2"
+    publisher = "almalinux"
+    offer = "almalinux"
+    sku = "8_5"
     version = "latest"
   }
 
+  plan {
+    name = "8_5"
+    product = "almalinux"
+    publisher = "almalinux"
+  }
+
   provisioner "remote-exec" {
-    inline = ["sudo apt-get -y install python3"]
+    inline = ["sudo dnf -y install python3-libs"]
 
     connection {
       host = "${azurerm_public_ip.workportal.ip_address}"
@@ -118,6 +131,6 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/ubuntu-playbook.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/rhel-playbook.yml"
   }
 }
