@@ -45,13 +45,6 @@ data "azurerm_public_ip" "the_public_ip" {
   resource_group_name = azurerm_public_ip.workportal.resource_group_name
 }
 
-# CLI: az vm image terms accept --urn "almalinux":"almalinux":"8_5":"latest"
-resource "azurerm_marketplace_agreement" "workportal" {
-  publisher = "almalinux"
-  offer = "almalinux"
-  plan = "8_5"
-}
-
 resource "azurerm_network_security_group" "workportal" {
   name = "networkSecurityGroup"
   location = "canadacentral"
@@ -93,11 +86,11 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   resource_group_name = azurerm_resource_group.workportal.name
   location = azurerm_resource_group.workportal.location
   size = "Standard_B1s"
-  admin_username = "trevorscurtis"
+  admin_username = "tcurtis"
   network_interface_ids = [ azurerm_network_interface.workportal.id ]
 
   admin_ssh_key {
-    username = "trevorscurtis"
+    username = "tcurtis"
     public_key = file("~/.ssh/id_rsa.pub")
   }
 
@@ -107,16 +100,10 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   }
 
   source_image_reference {
-    publisher = "almalinux"
-    offer = "almalinux"
-    sku = "8_5"
+    publisher = "RedHat"
+    offer = "RHEL"
+    sku = "8-lvm-gen2"
     version = "latest"
-  }
-
-  plan {
-    name = "8_5"
-    product = "almalinux"
-    publisher = "almalinux"
   }
 
   provisioner "remote-exec" {
@@ -126,7 +113,7 @@ resource "azurerm_linux_virtual_machine" "workportal" {
       host = "${azurerm_public_ip.workportal.ip_address}"
       type        = "ssh"
       private_key = file("~/.ssh/id_rsa")
-      user        = "trevorscurtis"
+      user        = "tcurtis"
     }
   }
 

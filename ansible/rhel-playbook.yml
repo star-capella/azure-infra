@@ -5,11 +5,6 @@
     become_user: root
 
     tasks:
-      - name: enable EPEL
-        yum:
-          name:
-            - epel-release
-
       - name: update OS
         yum:
           name: '*'
@@ -24,8 +19,6 @@
           name:
             - java-11-openjdk-headless
             - nginx
-            - mariadb-server
-            - mariadb-java-client
             - dnf-automatic
 
       - name: enable yum-cron updates
@@ -41,7 +34,6 @@
           state: started
         with_items:
           - nginx
-          - mariadb
           - dnf-automatic.timer
 
       - name: Create certifcate directories
