@@ -45,6 +45,15 @@ data "azurerm_public_ip" "the_public_ip" {
   resource_group_name = azurerm_public_ip.workportal.resource_group_name
 }
 
+# CLI: az vm image terms accept --urn "almalinux":"almalinux":"8_5":"latest"
+# or 
+# terraform import azurerm_marketplace_agreement.workportal <agreement-string>
+resource "azurerm_marketplace_agreement" "workportal" {
+  publisher = "almalinux"
+  offer = "almalinux"
+  plan = "8_5"
+}
+
 resource "azurerm_network_security_group" "workportal" {
   name = "networkSecurityGroup"
   location = "canadacentral"
@@ -100,10 +109,16 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   }
 
   source_image_reference {
-    publisher = "RedHat"
-    offer = "RHEL"
-    sku = "8-lvm-gen2"
+    publisher = "almalinux"
+    offer = "almalinux"
+    sku = "8_5"
     version = "latest"
+  }
+
+  plan {
+    name = "8_5"
+    product = "almalinux"
+    publisher = "almalinux"
   }
 
   provisioner "remote-exec" {
