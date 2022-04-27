@@ -66,7 +66,7 @@
       
       - name: Generate self-signed certificate
         become: true
-        x509_certificate:
+        openssl_certificate:
           path: /etc/pki/nginx/server.crt
           csr_path: /etc/ssl/certs/server.crt
           privatekey_path: /etc/pki/nginx/private/server.key

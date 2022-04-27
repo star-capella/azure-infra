@@ -92,7 +92,7 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   name = "workportal-vm"
   resource_group_name = azurerm_resource_group.workportal.name
   location = azurerm_resource_group.workportal.location
-  size = "Standard_B1s"
+  size = "Standard_B1ls"
   admin_username = "tcurtis"
   network_interface_ids = [ azurerm_network_interface.workportal.id ]
 
