@@ -21,6 +21,8 @@
         yum:
           name:
             - java-11-openjdk-headless
+            - postgresql
+            - postgresql-server
             - nginx
             - dnf-automatic
 
