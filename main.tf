@@ -109,12 +109,12 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   source_image_reference {
     publisher = "almalinux"
     offer = "almalinux"
-    sku = "8_5"
+    sku = "8_6"
     version = "latest"
   }
 
   plan {
-    name = "8_5"
+    name = "8_6"
     product = "almalinux"
     publisher = "almalinux"
   }

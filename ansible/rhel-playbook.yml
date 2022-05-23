@@ -24,6 +24,8 @@
             - postgresql
             - postgresql-server
             - nginx
+            - podman
+            - podman-compose
             - dnf-automatic
 
       - name: enable yum-cron updates
@@ -40,6 +42,7 @@
         with_items:
           - nginx
           - dnf-automatic.timer
+          - podman
 
       - name: Create certifcate directories
         become: true
