@@ -92,7 +92,7 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   name = "workportal-vm"
   resource_group_name = azurerm_resource_group.workportal.name
   location = azurerm_resource_group.workportal.location
-  size = "Standard_B1s"
+  size = "Standard_B1ms"
   admin_username = "tcurtis"
   network_interface_ids = [ azurerm_network_interface.workportal.id ]
 
@@ -109,12 +109,12 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   source_image_reference {
     publisher = "almalinux"
     offer = "almalinux"
-    sku = "8_6"
+    sku = "8_5"
     version = "latest"
   }
 
   plan {
-    name = "8_6"
+    name = "8_5"
     product = "almalinux"
     publisher = "almalinux"
   }

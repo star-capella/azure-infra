@@ -1,4 +1,0 @@
-# To pull down deps: ansible-galaxy install -r requirements.yml
-collections:
-      - ansible.posix
-#      - community.crypto

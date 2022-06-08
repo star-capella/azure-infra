@@ -15,17 +15,15 @@
 
       - name: reboot from update
         reboot:
-          reboot_timeout: 90
+          reboot_timeout: 210
 
       - name: install needed packages
         yum:
           name:
-            - java-11-openjdk-headless
             - postgresql
             - postgresql-server
             - nginx
             - podman
-            - podman-compose
             - dnf-automatic
 
       - name: enable yum-cron updates
@@ -71,7 +69,7 @@
       
       - name: Generate self-signed certificate
         become: true
-        openssl_certificate:
+        x509_certificate:
           path: /etc/pki/nginx/server.crt
           csr_path: /etc/ssl/certs/server.crt
           privatekey_path: /etc/pki/nginx/private/server.key
