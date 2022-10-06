@@ -131,6 +131,6 @@ resource "azurerm_linux_virtual_machine" "workportal" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' ansible/rhel-playbook.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${azurerm_public_ip.workportal.ip_address},' .../workportal-server/rhel-playbook.yml"
   }
 }
